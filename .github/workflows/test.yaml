@@ -20,7 +20,8 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_DATABASE: simple_bank
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_USER: root
+          MYSQL_ROOT_PASSWORD: u2E3WWtgam
         ports:
           - 31964:3306
         options: >-
@@ -31,9 +32,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Verify Mysql Database
-        run: mysql --host 127.0.0.1 --port 31964 -uroot -e "SHOW DATABASES LIKE 'simple_bank'"
 
       - name: Set up Go
         uses: actions/setup-go@v3
