@@ -68,7 +68,10 @@ func (q *Queries) GetAccount(ctx context.Context, id sql.NullInt64) (Account, er
 
 const listAccount = `-- name: ListAccount :many
 select id, account_owner, balance, currency, created_at, updated_at from account
-order by id limit ?, ?
+where id >= (
+    select id from account order by id limit ?, 1
+)
+order by id limit ?
 `
 
 type ListAccountParams struct {
@@ -82,7 +85,7 @@ func (q *Queries) ListAccount(ctx context.Context, arg ListAccountParams) ([]Acc
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Account
+	items := []Account{}
 	for rows.Next() {
 		var i Account
 		if err := rows.Scan(

@@ -15,4 +15,7 @@ migratedown:
 test:
 	go test -v -cover ./...
 
-.PHONY: mysql migrateup migratedown test
+run:
+	go run main.go
+
+.PHONY: mysql createdb migrateup migratedown test run

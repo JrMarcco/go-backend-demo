@@ -15,7 +15,7 @@ type mysqlTestSuite struct {
 	dbDriver string
 	dbSource string
 
-	db *sql.DB
+	conn *sql.DB
 
 	queries *Queries
 }
@@ -28,11 +28,11 @@ func TestMySQL(t *testing.T) {
 }
 
 func (m *mysqlTestSuite) SetupSuite() {
-	db, err := sql.Open(m.dbDriver, m.dbSource)
+	conn, err := sql.Open(m.dbDriver, m.dbSource)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	m.db = db
-	m.queries = New(db)
+	m.conn = conn
+	m.queries = New(conn)
 }

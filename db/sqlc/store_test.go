@@ -10,7 +10,7 @@ import (
 func (m *mysqlTestSuite) TestTransferTx() {
 	t := m.T()
 
-	store := NewStore(m.db)
+	store := NewStore(m.conn)
 
 	aid1 := m.createAccount(t, CreateAccountParams{
 		AccountOwner: util.RandomString(6),
@@ -103,7 +103,7 @@ func (m *mysqlTestSuite) TestTransferTx() {
 func (m *mysqlTestSuite) TestTransferTxDeadLock() {
 	t := m.T()
 
-	store := NewStore(m.db)
+	store := NewStore(m.conn)
 
 	aid1 := m.createAccount(t, CreateAccountParams{
 		AccountOwner: util.RandomString(6),

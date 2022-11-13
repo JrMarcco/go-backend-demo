@@ -7,7 +7,10 @@ where id = ? limit 1;
 
 -- name: ListAccount :many
 select * from account
-order by id limit ?, ?;
+where id >= (
+    select id from account order by id limit ?, 1
+)
+order by id limit ?;
 
 -- name: AddBalance :exec
 update account set balance = balance + sqlc.arg(amount) where id = ?;
