@@ -32,8 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Verify Mysql Database
-        run: mysql --host 127.0.0.1 --port 3306 -uroot -e "SHOW DATABASES LIKE 'simple_bank'"
+      - name: Set up MySQL
+        run: mysql --host 127.0.0.1 --port 3306 -uroot -e "create database if not exists simple_bank collate utf8mb4_general_ci"
 
       - name: Set up Go
         uses: actions/setup-go@v3
