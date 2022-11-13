@@ -2,7 +2,7 @@ version: 1
 packages:
   - name: "db"
     path: "./db"
-    schema: "./db/schema"
+    schema: "./db/migration"
     queries: "./db/queries"
     engine: "mysql"
     emit_prepared_queries: false
