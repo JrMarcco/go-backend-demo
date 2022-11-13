@@ -24,7 +24,7 @@ jobs:
           MYSQL_PASSWORD: u2E3WWtgam
           MYSQL_ROOT_PASSWORD: u2E3WWtgam
         ports:
-          - 3306:31964
+          - 31964:3306
 
     env:
       DB_DATABASE: simple_bank
@@ -37,7 +37,7 @@ jobs:
       - name: Set up MySQL
         run: |
           sudo apt-get install -y mysql-client
-          mysql -e --host 127.0.0.1 --port 31964 'create database ${{ env.DB_DATABASE }} collate utf8mb4_general_ci;' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+          mysql --host 127.0.0.1 --port 31964 -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} -e 'create database ${{ env.DB_DATABASE }} collate utf8mb4_general_ci;'
 
       - name: Set up Go
         uses: actions/setup-go@v3
