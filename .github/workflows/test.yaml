@@ -24,7 +24,7 @@ jobs:
           MYSQL_PASSWORD: u2E3WWtgam
           MYSQL_ROOT_PASSWORD: u2E3WWtgam
         ports:
-          - 31964:3306
+          - 3306:31964
         options: >-
           --health-cmd="mysqladmin ping" 
           --health-interval=10s 
