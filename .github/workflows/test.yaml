@@ -20,18 +20,20 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_DATABASE: simple_bank
-          MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: u2E3WWtgam
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
           - 31964:3306
+        options: >-
+          --health-cmd="mysqladmin ping" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up MySQL
-        run: |
-          sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 --port 31964 -uroot -pu2E3WWtgam -e 'create database simple_bank collate utf8mb4_general_ci;'
+      - name: Verify Mysql Database
+        run: mysql --host 127.0.0.1 --port 31964 -uroot -e "SHOW DATABASES LIKE 'simple_bank'"
 
       - name: Set up Go
         uses: actions/setup-go@v3
