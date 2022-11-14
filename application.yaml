@@ -1,0 +1,6 @@
+server:
+  addr: "0.0.0.0:8080"
+
+db:
+  driver: "mysql"
+  source: "root:@tcp(127.0.0.1:3306)/simple_bank?parseTime=true"

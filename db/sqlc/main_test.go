@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"github.com/stretchr/testify/suite"
+	"go-backend-demo/util"
 	"log"
 	"testing"
 
@@ -21,9 +22,14 @@ type mysqlTestSuite struct {
 }
 
 func TestMySQL(t *testing.T) {
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("can not load config:", err)
+	}
+
 	suite.Run(t, &mysqlTestSuite{
-		dbDriver: "mysql",
-		dbSource: "root:@tcp(127.0.0.1:3306)/simple_bank?parseTime=true",
+		dbDriver: config.Db.Driver,
+		dbSource: config.Db.Source,
 	})
 }
 
