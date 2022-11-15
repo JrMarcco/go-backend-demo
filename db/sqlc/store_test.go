@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 	"database/sql"
+	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
-	"github/jrmarcco/go-backend-demo/util"
 )
 
 func (m *mysqlTestSuite) TestTransferTx() {

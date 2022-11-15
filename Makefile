@@ -12,10 +12,13 @@ migrateup:
 migratedown:
 	migrate --path db/migration -database "$(DB_URL)" -verbose down
 
+mockdb:
+	mockgen -package mockdb -destination db/mock/store.go github.com/jrmarcco/go-backend-demo/db/sqlc Store
+
 test:
 	go test -v -cover ./...
 
 run:
 	go run main.go
 
-.PHONY: mysql createdb migrateup migratedown test run
+.PHONY: mysql createdb migrateup migratedown mockdb test run

@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/suite"
-	"github/jrmarcco/go-backend-demo/util"
 	"log"
 	"testing"
 
