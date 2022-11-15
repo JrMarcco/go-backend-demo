@@ -25,6 +25,8 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
+	server.RegisterRouter()
+
 	if err = server.Start(config.Server.Addr); err != nil {
 		log.Fatal("can not start server:", err)
 	}
