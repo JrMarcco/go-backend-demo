@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 	"github.com/stretchr/testify/suite"
-	"go-backend-demo/util"
+	"github/jrmarcco/go-backend-demo/util"
 	"log"
 	"testing"
 

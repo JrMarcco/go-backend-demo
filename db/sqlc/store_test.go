@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/stretchr/testify/require"
-	"go-backend-demo/util"
+	"github/jrmarcco/go-backend-demo/util"
 )
 
 func (m *mysqlTestSuite) TestTransferTx() {

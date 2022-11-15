@@ -2,9 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"go-backend-demo/api"
-	db "go-backend-demo/db/sqlc"
-	"go-backend-demo/util"
+	"github/jrmarcco/go-backend-demo/api"
+	db "github/jrmarcco/go-backend-demo/db/sqlc"
+	"github/jrmarcco/go-backend-demo/util"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"

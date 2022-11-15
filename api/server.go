@@ -2,15 +2,15 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	db "go-backend-demo/db/sqlc"
+	db "github/jrmarcco/go-backend-demo/db/sqlc"
 )
 
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
-func NewServer(s *db.Store) *Server {
+func NewServer(s db.Store) *Server {
 	r := gin.Default()
 
 	server := &Server{

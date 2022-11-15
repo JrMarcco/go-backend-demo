@@ -6,19 +6,25 @@ import (
 	"fmt"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+
+	TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResult, error)
+}
+
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
-func (s *Store) withTx(ctx context.Context, fn func(queries *Queries) error) error {
+func (s *SQLStore) withTx(ctx context.Context, fn func(queries *Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -50,9 +56,9 @@ type TransferTxResult struct {
 }
 
 // TransferTx do transfer in transaction.
-// Pay attention to that don't call the Store's query func,
+// Pay attention to that don't call the SQLStore's query func,
 // it's out of transaction.
-func (s *Store) TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResult, error) {
+func (s *SQLStore) TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResult, error) {
 	var txRes TransferTxResult
 	err := s.withTx(ctx, func(queries *Queries) error {
 		var err error
