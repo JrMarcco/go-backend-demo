@@ -2,12 +2,11 @@ package db
 
 import (
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/suite"
 	"log"
 	"testing"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type mysqlTestSuite struct {
