@@ -3,22 +3,13 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
-	createUserArgs := CreateUserParams{
-		Username:     util.RandomString(6),
-		Email:        fmt.Sprintf("%s@email.com", util.RandomString(6)),
-		HashedPasswd: "secret",
-	}
-
-	userID := m.createUser(t, createUserArgs)
-	user, err := m.queries.GetUser(context.Background(), sql.NullInt64{Int64: userID, Valid: true})
-	require.NoError(t, err)
+	user := m.createUser(t)
 
 	createAccountArgs := CreateAccountParams{
 		AccountOwner: user.Username,
@@ -41,9 +32,7 @@ func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
 }
 
 func (m *mysqlTestSuite) TestCreateAccount() {
-	t := m.T()
-
-	_ = m.createAccount(t)
+	_ = m.createAccount(m.T())
 }
 
 func (m *mysqlTestSuite) TestGetAccount() {

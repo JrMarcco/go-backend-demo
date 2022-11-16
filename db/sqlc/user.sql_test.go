@@ -9,9 +9,17 @@ import (
 	"testing"
 )
 
-func (m *mysqlTestSuite) createUser(t *testing.T, user CreateUserParams) int64 {
+func (m *mysqlTestSuite) createUser(t *testing.T) User {
 
-	res, err := m.queries.CreateUser(context.Background(), user)
+	hashedPasswd, err := util.HashPasswd(util.RandomString(8))
+	require.NoError(t, err)
+
+	createUserArgs := CreateUserParams{
+		Username:     util.RandomString(6),
+		Email:        fmt.Sprintf("%s@email.com", util.RandomString(6)),
+		HashedPasswd: hashedPasswd,
+	}
+	res, err := m.queries.CreateUser(context.Background(), createUserArgs)
 
 	require.NoError(t, err)
 	id, err := res.LastInsertId()
@@ -19,27 +27,19 @@ func (m *mysqlTestSuite) createUser(t *testing.T, user CreateUserParams) int64 {
 	require.NoError(t, err)
 	require.NotZero(t, id)
 
-	return id
-}
-
-func (m *mysqlTestSuite) TestCreateUser() {
-	t := m.T()
-
-	args := CreateUserParams{
-		Username:     util.RandomString(6),
-		Email:        fmt.Sprintf("%s@email.com", util.RandomString(6)),
-		HashedPasswd: "secret",
-	}
-
-	id := m.createUser(t, args)
-
 	user, err := m.queries.GetUser(context.Background(), sql.NullInt64{
 		Int64: id,
 		Valid: true,
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, args.Username, user.Username)
-	require.Equal(t, args.Email, user.Email)
-	require.Equal(t, args.HashedPasswd, user.HashedPasswd)
+	require.Equal(t, createUserArgs.Username, user.Username)
+	require.Equal(t, createUserArgs.Email, user.Email)
+	require.Equal(t, createUserArgs.HashedPasswd, user.HashedPasswd)
+
+	return user
+}
+
+func (m *mysqlTestSuite) TestCreateUser() {
+	_ = m.createUser(m.T())
 }

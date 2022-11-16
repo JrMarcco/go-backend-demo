@@ -14,4 +14,10 @@ func (s *Server) RegisterRouter() {
 	{
 		transferG.POST("/add", s.createTransfer)
 	}
+
+	userG := apiG.Group("/user")
+	{
+		userG.POST("/add", s.createUser)
+		userG.GET("/get/:id", s.getUser)
+	}
 }
