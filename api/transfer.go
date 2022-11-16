@@ -12,7 +12,7 @@ type createTransferReq struct {
 	FromID   int64  `json:"fromID" binding:"required,min=1"`
 	ToID     int64  `json:"toID" binding:"required,min=1"`
 	Amount   int64  `json:"amount" binding:"required,gt=0"`
-	Currency string `json:"currency" binding:"required,oneof=RMB USD"`
+	Currency string `json:"currency" binding:"required,currency""`
 }
 
 func (s *Server) createTransfer(ctx *gin.Context) {
