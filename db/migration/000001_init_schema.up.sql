@@ -9,6 +9,9 @@ create table account
     primary key (id) using btree
 ) engine = innodb comment = 'account';
 
+create index account_owner_index on account(account_owner);
+create unique index unique_account_index on account(account_owner, currency);
+
 create table entry
 (
     id         bigint unsigned auto_increment comment 'id',
@@ -34,3 +37,17 @@ create table transfer
 
 create index transfer_from_to_index on transfer (from_id, to_id);
 create index transfer_to_index on transfer (to_id);
+
+create table users
+(
+    id bigint unsigned auto_increment comment 'id',
+    username varchar(32) not null default '',
+    email varchar(32) not null default '',
+    hashed_passwd varchar(64) not null default '',
+    password_changed_at datetime not null default '0000-01-01 00:00:00',
+    created_at datetime        not null default now(),
+    updated_at datetime        not null default now() on update now(),
+    primary key (id) using btree
+) engine = innodb comment 'users';
+
+create unique index unique_email_index on users(email);
