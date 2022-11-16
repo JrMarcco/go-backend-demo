@@ -3,107 +3,74 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
-	"math/rand"
 	"testing"
 )
 
-func (m *mysqlTestSuite) createAccount(t *testing.T, account CreateAccountParams) int64 {
-	res, err := m.queries.CreateAccount(context.Background(), account)
+func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
+	createUserArgs := CreateUserParams{
+		Username:     util.RandomString(6),
+		Email:        fmt.Sprintf("%s@email.com", util.RandomString(6)),
+		HashedPasswd: "secret",
+	}
+
+	userID := m.createUser(t, createUserArgs)
+	user, err := m.queries.GetUser(context.Background(), sql.NullInt64{Int64: userID, Valid: true})
 	require.NoError(t, err)
-	id, err := res.LastInsertId()
+
+	createAccountArgs := CreateAccountParams{
+		AccountOwner: user.Username,
+		Balance:      util.RandomInt64(100, 10000),
+		Currency:     "RMB",
+	}
+
+	res, err := m.queries.CreateAccount(context.Background(), createAccountArgs)
 
 	require.NoError(t, err)
-	require.NotZero(t, id)
+	accountID, err := res.LastInsertId()
 
-	return id
+	account, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: accountID, Valid: true})
+
+	require.NoError(t, err)
+	require.NotZero(t, account.ID)
+	require.NotZero(t, account.CreatedAt)
+
+	return account
 }
 
 func (m *mysqlTestSuite) TestCreateAccount() {
 	t := m.T()
 
-	_ = m.createAccount(t, CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 10000),
-		Currency:     "RMB",
-	})
+	_ = m.createAccount(t)
 }
 
 func (m *mysqlTestSuite) TestGetAccount() {
 	t := m.T()
 
-	args := CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 10000),
-		Currency:     "RMB",
-	}
-
-	id := m.createAccount(t, args)
-
-	account, err := m.queries.GetAccount(context.Background(), sql.NullInt64{
-		Int64: id,
-		Valid: true,
-	})
+	account1 := m.createAccount(t)
+	account2, err := m.queries.GetAccount(context.Background(), account1.ID)
 
 	require.NoError(t, err)
-	require.Equal(t, args.AccountOwner, account.AccountOwner)
-	require.Equal(t, args.Balance, account.Balance)
-	require.Equal(t, args.Currency, account.Currency)
+	require.Equal(t, account1.AccountOwner, account2.AccountOwner)
+	require.Equal(t, account1.Balance, account2.Balance)
+	require.Equal(t, account1.Currency, account2.Currency)
 }
 
 func (m *mysqlTestSuite) TestDeleteAccount() {
 	t := m.T()
 
-	args := CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 10000),
-		Currency:     "RMB",
-	}
-
-	id := m.createAccount(t, args)
+	account := m.createAccount(t)
 
 	err := m.queries.DeleteAccount(context.Background(), sql.NullInt64{
-		Int64: id,
+		Int64: account.ID.Int64,
 		Valid: true,
 	})
 
 	require.NoError(t, err)
 
-	account, err := m.queries.GetAccount(context.Background(), sql.NullInt64{
-		Int64: id,
-		Valid: true,
-	})
+	deletedAccount, err := m.queries.GetAccount(context.Background(), account.ID)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
-	require.Empty(t, account)
-}
-
-func (m *mysqlTestSuite) TestAddBalance() {
-	t := m.T()
-
-	createArgs := CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 10000),
-		Currency:     "RMB",
-	}
-
-	id := m.createAccount(t, createArgs)
-	addArgs := AddBalanceParams{
-		ID: sql.NullInt64{
-			Int64: id,
-			Valid: true,
-		},
-		Amount: rand.Int63n(10),
-	}
-
-	err := m.queries.AddBalance(context.Background(), addArgs)
-	require.NoError(t, err)
-
-	account, err := m.queries.GetAccount(context.Background(), sql.NullInt64{
-		Int64: id,
-		Valid: true,
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, createArgs.Balance+addArgs.Amount, account.Balance)
+	require.Empty(t, deletedAccount)
 }

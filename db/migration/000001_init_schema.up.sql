@@ -50,4 +50,5 @@ create table users
     primary key (id) using btree
 ) engine = innodb comment 'users';
 
+create unique index unique_user_name_index on users(username);
 create unique index unique_email_index on users(email);

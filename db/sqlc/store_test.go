@@ -2,8 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
-	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,21 +10,8 @@ func (m *mysqlTestSuite) TestTransferTx() {
 
 	store := NewStore(m.conn)
 
-	aid1 := m.createAccount(t, CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 1000),
-		Currency:     "RMB",
-	})
-	aid2 := m.createAccount(t, CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 1000),
-		Currency:     "RMB",
-	})
-
-	account1, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: aid1, Valid: true})
-	require.NoError(t, err)
-	account2, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: aid2, Valid: true})
-	require.NoError(t, err)
+	account1 := m.createAccount(t)
+	account2 := m.createAccount(t)
 
 	t.Log("before: ", account1.Balance, account2.Balance)
 
@@ -39,8 +24,8 @@ func (m *mysqlTestSuite) TestTransferTx() {
 	for i := 0; i < n; i++ {
 		go func() {
 			res, err := store.TransferTx(context.Background(), TransferTxParams{
-				FromID: aid1,
-				ToID:   aid2,
+				FromID: account1.ID.Int64,
+				ToID:   account2.ID.Int64,
 				Amount: amount,
 			})
 
@@ -59,18 +44,18 @@ func (m *mysqlTestSuite) TestTransferTx() {
 		// check transfer
 		require.NotEmpty(t, res.Transfer)
 		require.NotZero(t, res.Transfer.ID)
-		require.Equal(t, aid1, res.Transfer.FromID)
-		require.Equal(t, aid2, res.Transfer.ToID)
+		require.Equal(t, account1.ID.Int64, res.Transfer.FromID)
+		require.Equal(t, account2.ID.Int64, res.Transfer.ToID)
 		require.Equal(t, amount, res.Transfer.Amount)
 
 		// check from entry
 		require.NotEmpty(t, res.FromEntry)
-		require.Equal(t, aid1, res.FromEntry.AccountID)
+		require.Equal(t, account1.ID.Int64, res.FromEntry.AccountID)
 		require.Equal(t, -amount, res.FromEntry.Amount)
 
 		// check to entry
 		require.NotEmpty(t, res.ToEntry)
-		require.Equal(t, aid2, res.ToEntry.AccountID)
+		require.Equal(t, account2.ID.Int64, res.ToEntry.AccountID)
 		require.Equal(t, amount, res.ToEntry.Amount)
 
 		// check from account and to account
@@ -105,21 +90,8 @@ func (m *mysqlTestSuite) TestTransferTxDeadLock() {
 
 	store := NewStore(m.conn)
 
-	aid1 := m.createAccount(t, CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 1000),
-		Currency:     "RMB",
-	})
-	aid2 := m.createAccount(t, CreateAccountParams{
-		AccountOwner: util.RandomString(6),
-		Balance:      util.RandomInt64(100, 1000),
-		Currency:     "RMB",
-	})
-
-	account1, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: aid1, Valid: true})
-	require.NoError(t, err)
-	account2, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: aid2, Valid: true})
-	require.NoError(t, err)
+	account1 := m.createAccount(t)
+	account2 := m.createAccount(t)
 
 	t.Log("before: ", account1.Balance, account2.Balance)
 
@@ -130,16 +102,16 @@ func (m *mysqlTestSuite) TestTransferTxDeadLock() {
 
 	for i := 0; i < n; i++ {
 
-		fromID := aid1
-		toID := aid2
+		fromID := account1.ID.Int64
+		toID := account2.ID.Int64
 
 		if i%2 == 0 {
-			fromID = aid2
-			toID = aid1
+			fromID = account2.ID.Int64
+			toID = account1.ID.Int64
 		}
 
 		go func() {
-			_, err = store.TransferTx(context.Background(), TransferTxParams{
+			_, err := store.TransferTx(context.Background(), TransferTxParams{
 				FromID: fromID,
 				ToID:   toID,
 				Amount: amount,

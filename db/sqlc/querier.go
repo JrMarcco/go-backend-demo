@@ -14,8 +14,10 @@ type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (sql.Result, error)
 	CreateEntry(ctx context.Context, arg CreateEntryParams) (sql.Result, error)
 	CreateTransfer(ctx context.Context, arg CreateTransferParams) (sql.Result, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	DeleteAccount(ctx context.Context, id sql.NullInt64) error
 	GetAccount(ctx context.Context, id sql.NullInt64) (Account, error)
+	GetUser(ctx context.Context, id sql.NullInt64) (User, error)
 	ListAccount(ctx context.Context, arg ListAccountParams) ([]Account, error)
 }
 

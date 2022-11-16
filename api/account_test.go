@@ -98,9 +98,10 @@ func (a *apiTestSuite) TestGetAccountApi() {
 
 			// start server and send request
 			server := NewServer(store)
+			server.RegisterRouter()
 			recorder := httptest.NewRecorder()
 
-			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/account/%d", tc.arg), nil)
+			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/account/get/%d", tc.arg), nil)
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, req)
