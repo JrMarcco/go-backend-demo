@@ -35,9 +35,16 @@ func (p *PasetoLocalMaker) Generate(username string, duration time.Duration) (st
 }
 
 func (p *PasetoLocalMaker) Verify(token string) (*Payload, error) {
-	return nil, nil
-}
 
-type PasetoPublicMaker struct {
-	paseto *paseto.V2
+	payload := &Payload{}
+
+	err := p.paseto.Decrypt(token, p.asymetricKey, payload, nil)
+	if err != nil {
+		return nil, ErrInvalidToken
+	}
+
+	if err = payload.Valid(); err != nil {
+		return nil, err
+	}
+	return payload, err
 }
