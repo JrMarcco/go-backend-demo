@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func (m *mysqlTestSuite) TestTransferTx() {
@@ -37,52 +37,52 @@ func (m *mysqlTestSuite) TestTransferTx() {
 	existed := make(map[int]struct{}, n)
 	for i := 0; i < n; i++ {
 		err := <-errs
-		require.NoError(t, err)
+		assert.NoError(t, err)
 
 		res := <-results
 
 		// check transfer
-		require.NotEmpty(t, res.Transfer)
-		require.NotZero(t, res.Transfer.ID)
-		require.Equal(t, account1.ID.Int64, res.Transfer.FromID)
-		require.Equal(t, account2.ID.Int64, res.Transfer.ToID)
-		require.Equal(t, amount, res.Transfer.Amount)
+		assert.NotEmpty(t, res.Transfer)
+		assert.NotZero(t, res.Transfer.ID)
+		assert.Equal(t, account1.ID.Int64, res.Transfer.FromID)
+		assert.Equal(t, account2.ID.Int64, res.Transfer.ToID)
+		assert.Equal(t, amount, res.Transfer.Amount)
 
 		// check from entry
-		require.NotEmpty(t, res.FromEntry)
-		require.Equal(t, account1.ID.Int64, res.FromEntry.AccountID)
-		require.Equal(t, -amount, res.FromEntry.Amount)
+		assert.NotEmpty(t, res.FromEntry)
+		assert.Equal(t, account1.ID.Int64, res.FromEntry.AccountID)
+		assert.Equal(t, -amount, res.FromEntry.Amount)
 
 		// check to entry
-		require.NotEmpty(t, res.ToEntry)
-		require.Equal(t, account2.ID.Int64, res.ToEntry.AccountID)
-		require.Equal(t, amount, res.ToEntry.Amount)
+		assert.NotEmpty(t, res.ToEntry)
+		assert.Equal(t, account2.ID.Int64, res.ToEntry.AccountID)
+		assert.Equal(t, amount, res.ToEntry.Amount)
 
 		// check from account and to account
-		require.NotEmpty(t, res.FromAccount)
-		require.Equal(t, account1.ID, res.FromAccount.ID)
-		require.NotEmpty(t, res.ToAccount)
-		require.Equal(t, account2.ID, res.ToAccount.ID)
+		assert.NotEmpty(t, res.FromAccount)
+		assert.Equal(t, account1.ID, res.FromAccount.ID)
+		assert.NotEmpty(t, res.ToAccount)
+		assert.Equal(t, account2.ID, res.ToAccount.ID)
 
 		// check the transfer amount
 		diff1 := account1.Balance - res.FromAccount.Balance
 		diff2 := res.ToAccount.Balance - account2.Balance
-		require.True(t, diff1 == diff2 && diff1%amount == 0)
+		assert.True(t, diff1 == diff2 && diff1%amount == 0)
 
 		k := int(diff1 / amount)
-		require.True(t, k >= 1 && k <= n)
-		require.NotContains(t, existed, k)
+		assert.True(t, k >= 1 && k <= n)
+		assert.NotContains(t, existed, k)
 		existed[k] = struct{}{}
 	}
 
 	updatedAccount1, err := m.queries.GetAccount(context.Background(), account1.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	updatedAccount2, err := m.queries.GetAccount(context.Background(), account2.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	t.Log("after: ", updatedAccount1.Balance, updatedAccount2.Balance)
-	require.Equal(t, int64(n)*amount, account1.Balance-updatedAccount1.Balance)
-	require.Equal(t, int64(n)*amount, updatedAccount2.Balance-account2.Balance)
+	assert.Equal(t, int64(n)*amount, account1.Balance-updatedAccount1.Balance)
+	assert.Equal(t, int64(n)*amount, updatedAccount2.Balance-account2.Balance)
 }
 
 func (m *mysqlTestSuite) TestTransferTxDeadLock() {
@@ -122,15 +122,15 @@ func (m *mysqlTestSuite) TestTransferTxDeadLock() {
 
 	for i := 0; i < n; i++ {
 		err := <-errs
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}
 
 	updatedAccount1, err := m.queries.GetAccount(context.Background(), account1.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	updatedAccount2, err := m.queries.GetAccount(context.Background(), account2.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	t.Log("after: ", updatedAccount1.Balance, updatedAccount2.Balance)
-	require.Equal(t, account1.Balance, updatedAccount1.Balance)
-	require.Equal(t, account2.Balance, updatedAccount2.Balance)
+	assert.Equal(t, account1.Balance, updatedAccount1.Balance)
+	assert.Equal(t, account2.Balance, updatedAccount2.Balance)
 }

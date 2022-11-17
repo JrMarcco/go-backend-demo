@@ -11,7 +11,7 @@ import (
 	mockdb "github.com/jrmarcco/go-backend-demo/db/mock"
 	db "github.com/jrmarcco/go-backend-demo/db/sqlc"
 	"github.com/jrmarcco/go-backend-demo/util"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -93,7 +93,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				assert.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 		{
@@ -107,7 +107,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				assert.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 		{
@@ -121,7 +121,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 				store.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				assert.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 		{
@@ -143,14 +143,14 @@ func (a *apiTestSuite) TestCreateUserApi() {
 					Return(newMockSqlRes(1, user.ID.Int64), nil)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
+				assert.Equal(t, http.StatusOK, recorder.Code)
 
 				data, err := io.ReadAll(recorder.Body)
-				require.NoError(t, err)
+				assert.NoError(t, err)
 
 				id, err := strconv.ParseInt(string(data), 10, 64)
-				require.NoError(t, err)
-				require.Equal(t, user.ID.Int64, id)
+				assert.NoError(t, err)
+				assert.Equal(t, user.ID.Int64, id)
 			},
 		},
 		{
@@ -175,7 +175,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 					)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusForbidden, recorder.Code)
+				assert.Equal(t, http.StatusForbidden, recorder.Code)
 			},
 		},
 		{
@@ -197,7 +197,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 					Return(newMockSqlRes(0, 0), sql.ErrConnDone)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+				assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
 	}
@@ -217,10 +217,10 @@ func (a *apiTestSuite) TestCreateUserApi() {
 			recorder := httptest.NewRecorder()
 
 			data, err := json.Marshal(tc.arg)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			req, err := http.NewRequest(http.MethodPost, "/api/v1/user/add", bytes.NewReader(data))
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, req)
 			tc.checkResp(t, recorder)
@@ -232,7 +232,7 @@ func randomUser(t *testing.T) (db.User, string) {
 	password := util.RandomString(8)
 
 	hashed, err := util.HashPasswd(password)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	return db.User{
 		ID: sql.NullInt64{

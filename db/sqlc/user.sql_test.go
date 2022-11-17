@@ -5,14 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jrmarcco/go-backend-demo/util"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func (m *mysqlTestSuite) createUser(t *testing.T) User {
 
 	hashedPasswd, err := util.HashPasswd(util.RandomString(8))
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	createUserArgs := CreateUserParams{
 		Username:     util.RandomString(6),
@@ -21,19 +21,19 @@ func (m *mysqlTestSuite) createUser(t *testing.T) User {
 	}
 	res, err := m.queries.CreateUser(context.Background(), createUserArgs)
 
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	id, _ := res.LastInsertId()
-	require.NotZero(t, id)
+	assert.NotZero(t, id)
 
 	user, err := m.queries.GetUser(context.Background(), sql.NullInt64{
 		Int64: id,
 		Valid: true,
 	})
 
-	require.NoError(t, err)
-	require.Equal(t, createUserArgs.Username, user.Username)
-	require.Equal(t, createUserArgs.Email, user.Email)
-	require.Equal(t, createUserArgs.HashedPasswd, user.HashedPasswd)
+	assert.NoError(t, err)
+	assert.Equal(t, createUserArgs.Username, user.Username)
+	assert.Equal(t, createUserArgs.Email, user.Email)
+	assert.Equal(t, createUserArgs.HashedPasswd, user.HashedPasswd)
 
 	return user
 }

@@ -8,7 +8,7 @@ import (
 	mockdb "github.com/jrmarcco/go-backend-demo/db/mock"
 	db "github.com/jrmarcco/go-backend-demo/db/sqlc"
 	"github.com/jrmarcco/go-backend-demo/util"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -36,15 +36,15 @@ func (a *apiTestSuite) TestGetAccountApi() {
 					Return(account, nil)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
+				assert.Equal(t, http.StatusOK, recorder.Code)
 
 				data, err := io.ReadAll(recorder.Body)
-				require.NoError(t, err)
+				assert.NoError(t, err)
 
 				var respAccount db.Account
 				err = json.Unmarshal(data, &respAccount)
-				require.NoError(t, err)
-				require.Equal(t, account, respAccount)
+				assert.NoError(t, err)
+				assert.Equal(t, account, respAccount)
 			},
 		},
 		{
@@ -54,7 +54,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				assert.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 		{
@@ -67,7 +67,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 					Return(db.Account{}, sql.ErrNoRows)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusNotFound, recorder.Code)
+				assert.Equal(t, http.StatusNotFound, recorder.Code)
 			},
 		},
 		{
@@ -80,7 +80,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 					Return(db.Account{}, sql.ErrConnDone)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+				assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
 	}
@@ -100,7 +100,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			recorder := httptest.NewRecorder()
 
 			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/account/get/%d", tc.arg), nil)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, req)
 			tc.checkResp(t, recorder)

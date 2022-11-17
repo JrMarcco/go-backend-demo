@@ -1,9 +1,10 @@
 package token
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jrmarcco/go-backend-demo/util"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -19,7 +20,7 @@ func TestNewJwtMaker(t *testing.T) {
 		{
 			name:    "Short SecretKey Case",
 			arg:     "util",
-			wantErr: ErrInvalidKeySize,
+			wantErr: fmt.Errorf("invalid key size: must at least %d characters", minSecretKeySize),
 			wantRes: nil,
 		},
 		{
@@ -36,11 +37,11 @@ func TestNewJwtMaker(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			maker, err := NewJwtMaker(tc.arg)
 			if err != nil {
-				require.Equal(t, tc.wantErr, err)
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
 
-			require.Equal(t, tc.wantRes, maker)
+			assert.Equal(t, tc.wantRes, maker)
 		})
 	}
 }
@@ -79,33 +80,33 @@ func TestJwtMaker_Verify(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			maker, err := NewJwtMaker(secretKey)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			token, err := maker.Generate(tc.username, tc.duration)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			payload, err := maker.Verify(token)
 			if err != nil {
-				require.Equal(t, tc.wantErr, err)
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
-			require.Equal(t, tc.username, payload.Username)
+			assert.Equal(t, tc.username, payload.Username)
 		})
 	}
 }
 
 func TestJwtMaker_InvalidSign(t *testing.T) {
 	payload, err := NewPayload(util.RandomString(8), time.Minute)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodNone, payload)
 	token, err := jwtToken.SignedString(jwt.UnsafeAllowNoneSignatureType)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	maker, err := NewJwtMaker(util.RandomString(32))
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	payload, err = maker.Verify(token)
-	require.EqualError(t, err, ErrInvalidToken.Error())
-	require.Nil(t, payload)
+	assert.EqualError(t, err, ErrInvalidToken.Error())
+	assert.Nil(t, payload)
 }

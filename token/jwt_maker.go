@@ -9,15 +9,13 @@ import (
 
 const minSecretKeySize = 32
 
-var ErrInvalidKeySize = fmt.Errorf("invalid key size: must at least %d characters", minSecretKeySize)
-
 type JwtMaker struct {
 	secretKey string
 }
 
 func NewJwtMaker(secretKey string) (Maker, error) {
 	if len(secretKey) < minSecretKeySize {
-		return nil, ErrInvalidKeySize
+		return nil, fmt.Errorf("invalid key size: must at least %d characters", minSecretKeySize)
 	}
 
 	return &JwtMaker{
