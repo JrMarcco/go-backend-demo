@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/jrmarcco/go-backend-demo/util"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -19,14 +19,14 @@ func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
 
 	res, err := m.queries.CreateAccount(context.Background(), createAccountArgs)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	accountID, _ := res.LastInsertId()
 
 	account, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: accountID, Valid: true})
 
-	assert.NoError(t, err)
-	assert.NotZero(t, account.ID)
-	assert.NotZero(t, account.CreatedAt)
+	require.NoError(t, err)
+	require.NotZero(t, account.ID)
+	require.NotZero(t, account.CreatedAt)
 
 	return account
 }
@@ -41,10 +41,10 @@ func (m *mysqlTestSuite) TestGetAccount() {
 	account1 := m.createAccount(t)
 	account2, err := m.queries.GetAccount(context.Background(), account1.ID)
 
-	assert.NoError(t, err)
-	assert.Equal(t, account1.AccountOwner, account2.AccountOwner)
-	assert.Equal(t, account1.Balance, account2.Balance)
-	assert.Equal(t, account1.Currency, account2.Currency)
+	require.NoError(t, err)
+	require.Equal(t, account1.AccountOwner, account2.AccountOwner)
+	require.Equal(t, account1.Balance, account2.Balance)
+	require.Equal(t, account1.Currency, account2.Currency)
 }
 
 func (m *mysqlTestSuite) TestDeleteAccount() {
@@ -57,9 +57,9 @@ func (m *mysqlTestSuite) TestDeleteAccount() {
 		Valid: true,
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	deletedAccount, err := m.queries.GetAccount(context.Background(), account.ID)
-	assert.EqualError(t, err, sql.ErrNoRows.Error())
-	assert.Empty(t, deletedAccount)
+	require.EqualError(t, err, sql.ErrNoRows.Error())
+	require.Empty(t, deletedAccount)
 }

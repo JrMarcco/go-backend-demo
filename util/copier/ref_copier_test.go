@@ -1,7 +1,7 @@
 package copier
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -147,12 +147,12 @@ func TestRefCopier_Copy(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			res, err := tc.copyFunc()
-			assert.Equal(t, tc.wantErr, err)
+			require.Equal(t, tc.wantErr, err)
 
 			if err != nil {
 				return
 			}
-			assert.Equal(t, tc.wantRes, res)
+			require.Equal(t, tc.wantRes, res)
 		})
 	}
 }
