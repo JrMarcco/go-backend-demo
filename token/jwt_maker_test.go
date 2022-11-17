@@ -1,6 +1,7 @@
 package token
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -91,4 +92,20 @@ func TestJwtMaker_Verify(t *testing.T) {
 			require.Equal(t, tc.username, payload.Username)
 		})
 	}
+}
+
+func TestJwtMaker_InvalidSign(t *testing.T) {
+	payload, err := NewPayload(util.RandomString(8), time.Minute)
+	require.NoError(t, err)
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodNone, payload)
+	token, err := jwtToken.SignedString(jwt.UnsafeAllowNoneSignatureType)
+	require.NoError(t, err)
+
+	maker, err := NewJwtMaker(util.RandomString(32))
+	require.NoError(t, err)
+
+	payload, err = maker.Verify(token)
+	require.EqualError(t, err, ErrInvalidToken.Error())
+	require.Nil(t, payload)
 }
