@@ -11,7 +11,7 @@ import (
 )
 
 func TestNewPasetoLocalMaker(t *testing.T) {
-	asymetricKey := util.RandomString(32)
+	symmetricKey := util.RandomString(32)
 	tcs := []struct {
 		name    string
 		arg     string
@@ -26,11 +26,11 @@ func TestNewPasetoLocalMaker(t *testing.T) {
 		},
 		{
 			name:    "Normal Case",
-			arg:     asymetricKey,
+			arg:     symmetricKey,
 			wantErr: nil,
 			wantRes: &PasetoLocalMakerV2{
 				paseto:       paseto.NewV2(),
-				asymetricKey: []byte(asymetricKey),
+				symmetricKey: []byte(symmetricKey),
 			},
 		},
 	}
@@ -48,7 +48,7 @@ func TestNewPasetoLocalMaker(t *testing.T) {
 }
 
 func TestPasetoLocalMaker_Verify(t *testing.T) {
-	asymetricKey := util.RandomString(32)
+	symmetricKey := util.RandomString(32)
 
 	tcs := []struct {
 		name     string
@@ -79,7 +79,7 @@ func TestPasetoLocalMaker_Verify(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			maker, err := NewPasetoLocalMaker(asymetricKey)
+			maker, err := NewPasetoLocalMaker(symmetricKey)
 			require.NoError(t, err)
 
 			token, err := maker.Generate(tc.username, tc.duration)

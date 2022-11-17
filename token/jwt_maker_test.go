@@ -2,7 +2,7 @@ package token
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
 	"testing"
