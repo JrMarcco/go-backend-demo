@@ -29,11 +29,7 @@ func (s *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
-		return
-	}
+	id, _ := res.LastInsertId()
 
 	ctx.JSON(http.StatusOK, id)
 }

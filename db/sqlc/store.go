@@ -121,10 +121,7 @@ func doWitTransfer(ctx context.Context, args CreateTransferParams, q *Queries) (
 		return Transfer{}, err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return Transfer{}, err
-	}
+	id, _ := res.LastInsertId()
 
 	return Transfer{
 		ID: sql.NullInt64{
@@ -146,10 +143,7 @@ func doWithEntry(ctx context.Context, args CreateEntryParams, q *Queries) (Entry
 		return Entry{}, err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return Entry{}, err
-	}
+	id, _ := res.LastInsertId()
 
 	return Entry{
 		ID: sql.NullInt64{

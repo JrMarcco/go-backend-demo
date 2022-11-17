@@ -22,9 +22,7 @@ func (m *mysqlTestSuite) createUser(t *testing.T) User {
 	res, err := m.queries.CreateUser(context.Background(), createUserArgs)
 
 	require.NoError(t, err)
-	id, err := res.LastInsertId()
-
-	require.NoError(t, err)
+	id, _ := res.LastInsertId()
 	require.NotZero(t, id)
 
 	user, err := m.queries.GetUser(context.Background(), sql.NullInt64{

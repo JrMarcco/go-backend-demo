@@ -51,9 +51,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			name: "Invalid ID Case",
 			arg:  0,
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					GetAccount(gomock.Any(), gomock.Any()).
-					Times(0)
+				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)

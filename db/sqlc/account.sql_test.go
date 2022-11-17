@@ -20,7 +20,7 @@ func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
 	res, err := m.queries.CreateAccount(context.Background(), createAccountArgs)
 
 	require.NoError(t, err)
-	accountID, err := res.LastInsertId()
+	accountID, _ := res.LastInsertId()
 
 	account, err := m.queries.GetAccount(context.Background(), sql.NullInt64{Int64: accountID, Valid: true})
 
