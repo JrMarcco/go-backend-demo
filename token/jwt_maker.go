@@ -39,7 +39,7 @@ func (j *JwtMaker) Generate(username string, duration time.Duration) (string, er
 
 func (j *JwtMaker) Verify(token string) (*Payload, error) {
 	keyFunc := func(token *jwt.Token) (any, error) {
-		// verify the signature method
+		// *important: verify the signature method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidToken
 		}
