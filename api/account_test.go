@@ -95,8 +95,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			tc.buildStub(store)
 
 			// start server and send request
-			server := NewServer(store)
-			server.RegisterRouter()
+			server := a.newTestServer(store)
 			recorder := httptest.NewRecorder()
 
 			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/account/get/%d", tc.arg), nil)

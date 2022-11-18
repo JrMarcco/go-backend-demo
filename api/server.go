@@ -5,19 +5,26 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/jrmarcco/go-backend-demo/db/sqlc"
+	"github.com/jrmarcco/go-backend-demo/token"
+	"github.com/jrmarcco/go-backend-demo/util"
 )
 
 type Server struct {
+	config util.Server
 	store  db.Store
 	router *gin.Engine
+
+	tokenMaker token.Maker
 }
 
-func NewServer(s db.Store) *Server {
+func NewServer(config util.Server, s db.Store) *Server {
 	r := gin.Default()
 
 	server := &Server{
-		store:  s,
-		router: r,
+		config:     config,
+		store:      s,
+		router:     r,
+		tokenMaker: token.NewPasetoPubMarkerV4(),
 	}
 
 	return server

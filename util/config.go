@@ -1,6 +1,9 @@
 package util
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"time"
+)
 
 type Config struct {
 	Server Server `yaml:"server"`
@@ -13,7 +16,8 @@ type DB struct {
 }
 
 type Server struct {
-	Addr string `yaml:"addr"`
+	Addr          string        `yaml:"addr"`
+	TokenDuration time.Duration `yaml:"tokenDuration"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

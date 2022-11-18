@@ -212,8 +212,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 			tc.buildStub(store)
 
 			// start server and send request
-			server := NewServer(store)
-			server.RegisterRouter()
+			server := a.newTestServer(store)
 			recorder := httptest.NewRecorder()
 
 			data, err := json.Marshal(tc.arg)
