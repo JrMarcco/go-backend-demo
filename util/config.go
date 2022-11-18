@@ -6,16 +6,16 @@ import (
 )
 
 type Config struct {
-	Server Server `yaml:"server"`
-	Db     DB     `yaml:"db"`
+	Server ServerCfg `yaml:"server"`
+	Db     DBCfg     `yaml:"db"`
 }
 
-type DB struct {
+type DBCfg struct {
 	Driver string `yaml:"driver"`
 	Source string `yaml:"source"`
 }
 
-type Server struct {
+type ServerCfg struct {
 	Addr          string        `yaml:"addr"`
 	TokenDuration time.Duration `yaml:"tokenDuration"`
 }

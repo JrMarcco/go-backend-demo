@@ -20,13 +20,13 @@ type createUserReq struct {
 func (s *Server) createUser(ctx *gin.Context) {
 	var req createUserReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
 	hashedPasswd, err := util.HashPasswd(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
@@ -40,11 +40,11 @@ func (s *Server) createUser(ctx *gin.Context) {
 		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
 			switch mysqlErr.Number {
 			case uint16(1062):
-				ctx.JSON(http.StatusForbidden, errorResp(mysqlErr))
+				ctx.JSON(http.StatusForbidden, ErrorResp(mysqlErr))
 				return
 			}
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
@@ -68,30 +68,30 @@ type userResp struct {
 func (s *Server) getUser(ctx *gin.Context) {
 	var req getUserReq
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
 	user, err := s.store.GetUser(ctx, sql.NullInt64{Int64: req.ID, Valid: true})
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResp(err))
+			ctx.JSON(http.StatusNotFound, ErrorResp(err))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
 	c, err := copier.NewRefCopier[db.User, userResp]()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
 	resp, err := c.Copy(&user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
@@ -111,40 +111,40 @@ type loginResp struct {
 func (s *Server) login(ctx *gin.Context) {
 	var req loginReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
 	user, err := s.store.FindUser(ctx, req.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResp(err))
+			ctx.JSON(http.StatusNotFound, ErrorResp(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
 	if err = util.CheckPasswd(req.Password, user.HashedPasswd); err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResp(err))
+		ctx.JSON(http.StatusUnauthorized, ErrorResp(err))
 		return
 	}
 
-	token, err := s.tokenMaker.Generate(user.Username, s.config.TokenDuration)
+	token, err := s.GenerateToken(user.Username)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
 	c, err := copier.NewRefCopier[db.User, userResp]()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
 	ur, err := c.Copy(&user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 

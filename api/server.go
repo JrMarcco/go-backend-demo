@@ -10,20 +10,21 @@ import (
 )
 
 type Server struct {
-	config util.Server
-	store  db.Store
 	router *gin.Engine
+
+	config util.ServerCfg
+	store  db.Store
 
 	tokenMaker token.Maker
 }
 
-func NewServer(config util.Server, s db.Store) *Server {
+func NewServer(config util.ServerCfg, s db.Store) *Server {
 	r := gin.Default()
 
 	server := &Server{
+		router:     r,
 		config:     config,
 		store:      s,
-		router:     r,
 		tokenMaker: token.NewPasetoPubMarkerV4(),
 	}
 
@@ -31,7 +32,6 @@ func NewServer(config util.Server, s db.Store) *Server {
 }
 
 func (s *Server) Start(addr string) error {
-
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		if err := v.RegisterValidation("currency", validCurrency); err != nil {
 			return err
@@ -41,7 +41,19 @@ func (s *Server) Start(addr string) error {
 	return s.router.Run(addr)
 }
 
-func errorResp(err error) gin.H {
+func (s *Server) Use(middleware ...gin.HandlerFunc) {
+	_ = s.router.Use(middleware...)
+}
+
+func (s *Server) GenerateToken(username string) (string, error) {
+	return s.tokenMaker.Generate(username, s.config.TokenDuration)
+}
+
+func (s *Server) VerifyToken(token string) (*token.Payload, error) {
+	return s.tokenMaker.Verify(token)
+}
+
+func ErrorResp(err error) gin.H {
 	return gin.H{
 		"error": err.Error(),
 	}

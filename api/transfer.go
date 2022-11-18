@@ -18,7 +18,7 @@ type createTransferReq struct {
 func (s *Server) createTransfer(ctx *gin.Context) {
 	var req createTransferReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
@@ -32,7 +32,7 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 		Amount: req.Amount,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
@@ -43,16 +43,16 @@ func (s *Server) validAccount(ctx *gin.Context, accountID int64, currency string
 	account, err := s.store.GetAccount(ctx, sql.NullInt64{Int64: accountID, Valid: true})
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResp(err))
+			ctx.JSON(http.StatusNotFound, ErrorResp(err))
 			return false
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return false
 	}
 
 	if account.Currency != currency {
-		ctx.JSON(http.StatusBadRequest, errorResp(
+		ctx.JSON(http.StatusBadRequest, ErrorResp(
 			fmt.Errorf("account [%d] mismatch: %s vs %s", accountID, account.Currency, currency),
 		))
 		return false

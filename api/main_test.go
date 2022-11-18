@@ -22,7 +22,7 @@ func (a *apiTestSuite) SetupSuite() {
 }
 
 func (a *apiTestSuite) newTestServer(store db.Store) *Server {
-	server := NewServer(util.Server{TokenDuration: time.Minute}, store)
+	server := NewServer(util.ServerCfg{TokenDuration: time.Minute}, store)
 	server.RegisterRouter()
 
 	return server

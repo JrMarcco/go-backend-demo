@@ -15,7 +15,7 @@ type createAccountReq struct {
 func (s *Server) createAccount(ctx *gin.Context) {
 	var req createAccountReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
@@ -25,7 +25,7 @@ func (s *Server) createAccount(ctx *gin.Context) {
 		Balance:      0,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
@@ -41,18 +41,18 @@ type getAccountReq struct {
 func (s *Server) getAccount(ctx *gin.Context) {
 	var req getAccountReq
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
 	account, err := s.store.GetAccount(ctx, sql.NullInt64{Int64: req.ID, Valid: true})
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResp(err))
+			ctx.JSON(http.StatusNotFound, ErrorResp(err))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
@@ -67,7 +67,7 @@ type listAccountReq struct {
 func (s *Server) listAccount(ctx *gin.Context) {
 	var req listAccountReq
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		ctx.JSON(http.StatusBadRequest, ErrorResp(err))
 		return
 	}
 
@@ -77,11 +77,11 @@ func (s *Server) listAccount(ctx *gin.Context) {
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResp(err))
+			ctx.JSON(http.StatusNotFound, ErrorResp(err))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		ctx.JSON(http.StatusInternalServerError, ErrorResp(err))
 		return
 	}
 
