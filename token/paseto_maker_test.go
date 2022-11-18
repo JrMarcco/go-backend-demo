@@ -94,3 +94,29 @@ func TestPasetoLocalMaker_Verify(t *testing.T) {
 		})
 	}
 }
+
+func TestPasetoLocalMakerV4(t *testing.T) {
+	maker := NewPasetoLocalMarkerV4()
+
+	username := util.RandomString(8)
+
+	token, err := maker.Generate(username, time.Hour)
+	require.NoError(t, err)
+
+	payload, err := maker.Verify(token)
+	require.NoError(t, err)
+	require.Equal(t, username, payload.Username)
+}
+
+func TestPasetoPubMakerV4(t *testing.T) {
+	maker := NewPasetoPubMarkerV4()
+
+	username := util.RandomString(8)
+
+	token, err := maker.Generate(username, time.Hour)
+	require.NoError(t, err)
+
+	payload, err := maker.Verify(token)
+	require.NoError(t, err)
+	require.Equal(t, username, payload.Username)
+}
