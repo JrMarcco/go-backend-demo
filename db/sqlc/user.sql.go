@@ -24,6 +24,26 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	return q.db.ExecContext(ctx, createUser, arg.Username, arg.Email, arg.HashedPasswd)
 }
 
+const findUser = `-- name: FindUser :one
+select id, username, email, hashed_passwd, password_changed_at, created_at, updated_at from users
+where username = ? limit 1
+`
+
+func (q *Queries) FindUser(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUser, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.HashedPasswd,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUser = `-- name: GetUser :one
 select id, username, email, hashed_passwd, password_changed_at, created_at, updated_at from users
 where id = ? limit 1

@@ -243,3 +243,7 @@ func randomUser(t *testing.T) (db.User, string) {
 		Email:        fmt.Sprintf("%s@email.com", util.RandomString(6)),
 	}, password
 }
+
+func (a *apiTestSuite) TestLogin() {
+
+}

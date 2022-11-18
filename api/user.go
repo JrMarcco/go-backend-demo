@@ -56,7 +56,7 @@ type getUserReq struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
-type getUserResp struct {
+type userResp struct {
 	ID                sql.NullInt64 `json:"id"`
 	Username          string        `json:"username"`
 	Email             string        `json:"email"`
@@ -83,7 +83,7 @@ func (s *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	c, err := copier.NewRefCopier[db.User, getUserResp]()
+	c, err := copier.NewRefCopier[db.User, userResp]()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResp(err))
 		return
@@ -96,4 +96,62 @@ func (s *Server) getUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, resp)
+}
+
+type loginReq struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type loginResp struct {
+	AccessToken string    `json:"accessToken"`
+	User        *userResp `json:"user"`
+}
+
+func (s *Server) login(ctx *gin.Context) {
+	var req loginReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResp(err))
+		return
+	}
+
+	user, err := s.store.FindUser(ctx, req.Username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResp(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		return
+	}
+
+	if err = util.CheckPasswd(req.Password, user.HashedPasswd); err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResp(err))
+		return
+	}
+
+	token, err := s.tokenMaker.Generate(user.Username, s.config.TokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		return
+	}
+
+	c, err := copier.NewRefCopier[db.User, userResp]()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		return
+	}
+
+	ur, err := c.Copy(&user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK,
+		loginResp{
+			AccessToken: token,
+			User:        ur,
+		},
+	)
 }
