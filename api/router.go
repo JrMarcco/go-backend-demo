@@ -1,7 +1,10 @@
 package api
 
 func (s *Server) RegisterRouter() {
-	apiG := s.router.Group("/api/v1")
+	// use for health check
+	s.Router.GET("/healthz", s.healthz)
+
+	apiG := s.Router.Group("/api/v1")
 
 	accountG := apiG.Group("/account")
 	{

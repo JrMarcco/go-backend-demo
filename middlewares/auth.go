@@ -1,10 +1,11 @@
 package middlewares
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jrmarcco/go-backend-demo/api"
+	"github.com/jrmarcco/go-backend-demo/token"
+	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 )
@@ -15,14 +16,18 @@ const (
 	payloadKey       = "payload"
 )
 
-func AuthMiddleware(s *api.Server) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		path := ctx.Request.URL.Path
-		if path == "/api/v1/user/login" {
-			ctx.Next()
-			return
-		}
+type AuthMiddlewareBuilder struct {
+	maker token.Maker
+}
 
+func NewAuthMiddlewareBuilder(maker token.Maker) *AuthMiddlewareBuilder {
+	return &AuthMiddlewareBuilder{
+		maker: maker,
+	}
+}
+
+func (b *AuthMiddlewareBuilder) Build() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		authorizationHeader := ctx.GetHeader(authorizationKey)
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization is not provided")
@@ -37,15 +42,13 @@ func AuthMiddleware(s *api.Server) gin.HandlerFunc {
 			return
 		}
 
-		typ := strings.ToLower(fds[0])
-		if typ != authorizationTyp {
-			err := fmt.Errorf("unsupported authorization type: %s", typ)
+		if fds[0] != authorizationTyp {
+			err := fmt.Errorf("unsupported authorization type: %s", fds[0])
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, api.ErrorResp(err))
 			return
 		}
 
-		accessToken := fds[1]
-		payload, err := s.VerifyToken(accessToken)
+		payload, err := b.maker.Verify(fds[1])
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, api.ErrorResp(err))
 			return

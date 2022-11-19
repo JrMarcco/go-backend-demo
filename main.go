@@ -26,7 +26,10 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(config.Server, store)
 
-	server.Use(middlewares.AuthMiddleware(server))
+	server.Use(
+		middlewares.NewAuthMiddlewareBuilder(server.TokenMaker).Build(),
+	)
+
 	server.RegisterRouter()
 
 	if err = server.Start(config.Server.Addr); err != nil {

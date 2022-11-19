@@ -221,7 +221,7 @@ func (a *apiTestSuite) TestCreateUserApi() {
 			req, err := http.NewRequest(http.MethodPost, "/api/v1/user/add", bytes.NewReader(data))
 			require.NoError(t, err)
 
-			server.router.ServeHTTP(recorder, req)
+			server.Router.ServeHTTP(recorder, req)
 			tc.checkResp(t, recorder)
 		})
 	}

@@ -1,31 +1,62 @@
 package middlewares
 
 import (
-	"github.com/jrmarcco/go-backend-demo/api"
-	"github.com/jrmarcco/go-backend-demo/util"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/require"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
 
-func TestAuthMiddleware(t *testing.T) {
+const authPath = "/auth"
+
+func (m *middlewareTestSuite) buildReq(authorizationTyp, username string, duration time.Duration) *http.Request {
+	t := m.T()
+
+	req, err := http.NewRequest(http.MethodGet, authPath, nil)
+	require.NoError(t, err)
+
+	tk, err := m.server.TokenMaker.Generate(username, duration)
+	require.NoError(t, err)
+
+	authorization := fmt.Sprintf("%s %s", authorizationTyp, tk)
+	req.Header.Set(authorizationKey, authorization)
+	return req
+}
+
+func (m *middlewareTestSuite) TestAuthMiddleware() {
+	t := m.T()
+
 	tcs := []struct {
-		name string
+		name     string
+		req      *http.Request
+		wantCode int
 	}{
 		{
-			name: "Normal Case",
+			name:     "Normal Case",
+			req:      m.buildReq(authorizationTyp, "jrmarcco", time.Minute),
+			wantCode: http.StatusOK,
 		},
 	}
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 
-			// build test server
-			_ = api.NewServer(util.ServerCfg{TokenDuration: time.Minute}, nil)
+			// register auth middleware
+			m.server.Router.GET(
+				authPath,
+				NewAuthMiddlewareBuilder(m.server.TokenMaker).Build(),
+				func(ctx *gin.Context) {
+					ctx.JSON(http.StatusOK, gin.H{})
+				},
+			)
 
-			// register middlewares
+			recorder := httptest.NewRecorder()
+			m.server.Router.ServeHTTP(recorder, tc.req)
 
-			// setup authorization
-
+			require.Equal(t, tc.wantCode, recorder.Code)
 		})
 	}
 }

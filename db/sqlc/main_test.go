@@ -15,8 +15,7 @@ type mysqlTestSuite struct {
 	dbDriver string
 	dbSource string
 
-	conn *sql.DB
-
+	conn    *sql.DB
 	queries *Queries
 }
 

@@ -10,22 +10,21 @@ import (
 )
 
 type Server struct {
-	router *gin.Engine
+	Router     *gin.Engine
+	TokenMaker token.Maker
 
 	config util.ServerCfg
 	store  db.Store
-
-	tokenMaker token.Maker
 }
 
 func NewServer(config util.ServerCfg, s db.Store) *Server {
 	r := gin.Default()
 
 	server := &Server{
-		router:     r,
+		Router:     r,
 		config:     config,
 		store:      s,
-		tokenMaker: token.NewPasetoPubMarkerV4(),
+		TokenMaker: token.NewPasetoPubMarkerV4(),
 	}
 
 	return server
@@ -38,19 +37,19 @@ func (s *Server) Start(addr string) error {
 		}
 	}
 
-	return s.router.Run(addr)
+	return s.Router.Run(addr)
 }
 
 func (s *Server) Use(middleware ...gin.HandlerFunc) {
-	_ = s.router.Use(middleware...)
+	_ = s.Router.Use(middleware...)
 }
 
 func (s *Server) GenerateToken(username string) (string, error) {
-	return s.tokenMaker.Generate(username, s.config.TokenDuration)
+	return s.TokenMaker.Generate(username, s.config.TokenDuration)
 }
 
 func (s *Server) VerifyToken(token string) (*token.Payload, error) {
-	return s.tokenMaker.Verify(token)
+	return s.TokenMaker.Verify(token)
 }
 
 func ErrorResp(err error) gin.H {
