@@ -31,13 +31,15 @@ func (a *apiTestSuite) TestGetAccountApi() {
 
 	tcs := []struct {
 		name      string
-		arg       *http.Request
+		req       *http.Request
+		username  string
 		buildStub func(store *mockdb.MockStore)
 		checkResp func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "Normal Case",
-			arg:  a.buildGetAccountReq(account.ID.Int64),
+			name:     "Normal Case",
+			req:      a.buildGetAccountReq(account.ID.Int64),
+			username: account.AccountOwner,
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -57,8 +59,9 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			},
 		},
 		{
-			name: "Invalid ID Case",
-			arg:  a.buildGetAccountReq(0),
+			name:     "Invalid ID Case",
+			req:      a.buildGetAccountReq(0),
+			username: account.AccountOwner,
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
@@ -67,8 +70,9 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			},
 		},
 		{
-			name: "NotFound Case",
-			arg:  a.buildGetAccountReq(account.ID.Int64),
+			name:     "NotFound Case",
+			req:      a.buildGetAccountReq(account.ID.Int64),
+			username: account.AccountOwner,
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -80,8 +84,9 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			},
 		},
 		{
-			name: "InternalError Case",
-			arg:  a.buildGetAccountReq(account.ID.Int64),
+			name:     "InternalError Case",
+			req:      a.buildGetAccountReq(account.ID.Int64),
+			username: account.AccountOwner,
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -90,6 +95,33 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			},
 			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+		{
+			name:     "Authorized User Case",
+			req:      a.buildGetAccountReq(account.ID.Int64),
+			username: "unauthorized user",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
+					Times(1).
+					Return(account, nil)
+			},
+			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
+		{
+			name:     "Unauthorized Case",
+			req:      a.buildGetAccountReq(0),
+			username: "",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetAccount(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResp: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
 			},
 		},
 	}
@@ -107,9 +139,9 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			a.setupTestServer(store)
 			recorder := httptest.NewRecorder()
 
-			a.setAuthorization(tc.arg, account.AccountOwner, time.Minute)
+			a.setAuthorization(tc.req, tc.username, time.Minute)
 
-			a.s.router.ServeHTTP(recorder, tc.arg)
+			a.s.router.ServeHTTP(recorder, tc.req)
 			tc.checkResp(t, recorder)
 		})
 	}

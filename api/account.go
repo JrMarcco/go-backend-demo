@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gin-gonic/gin"
 	db "github.com/jrmarcco/go-backend-demo/db/sqlc"
 	"github.com/jrmarcco/go-backend-demo/token"
@@ -54,6 +55,13 @@ func (s *S) getAccount(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusInternalServerError, errorResp(err))
+		return
+	}
+
+	payload := ctx.MustGet(payloadKey).(*token.Payload)
+	if account.AccountOwner != payload.Username {
+		err := errors.New("account doesn't belong to authorized user")
+		ctx.JSON(http.StatusUnauthorized, errorResp(err))
 		return
 	}
 
