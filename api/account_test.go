@@ -98,7 +98,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			},
 		},
 		{
-			name:     "Authorized User Case",
+			name:     "Unauthorized User Case",
 			req:      a.buildGetAccountReq(account.ID.Int64),
 			username: "unauthorized user",
 			buildStub: func(store *mockdb.MockStore) {
