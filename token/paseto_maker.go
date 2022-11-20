@@ -148,10 +148,14 @@ func payload2PasetoToken(token *pasetoV4.Token) (*Payload, error) {
 		return nil, err
 	}
 
-	return &Payload{
+	payload := &Payload{
 		ID:        id,
 		Username:  username,
 		IssuedAt:  issuedAt,
 		ExpiredAt: expireAt,
-	}, nil
+	}
+	if err = payload.Valid(); err != nil {
+		return nil, err
+	}
+	return payload, nil
 }

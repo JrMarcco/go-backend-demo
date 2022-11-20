@@ -18,11 +18,14 @@ func (m *middlewareTestSuite) buildReq(authorizationTyp, username string, durati
 	req, err := http.NewRequest(http.MethodGet, authPath, nil)
 	require.NoError(t, err)
 
-	tk, err := m.server.TokenMaker.Generate(username, duration)
-	require.NoError(t, err)
+	if username != "" {
+		tk, err := m.server.TokenMaker.Generate(username, duration)
+		require.NoError(t, err)
 
-	authorization := fmt.Sprintf("%s %s", authorizationTyp, tk)
-	req.Header.Set(authorizationKey, authorization)
+		authorization := fmt.Sprintf("%s %s", authorizationTyp, tk)
+		req.Header.Set(authorizationKey, authorization)
+	}
+
 	return req
 }
 
@@ -39,19 +42,39 @@ func (m *middlewareTestSuite) TestAuthMiddleware() {
 			req:      m.buildReq(authorizationTyp, "jrmarcco", time.Minute),
 			wantCode: http.StatusOK,
 		},
+		{
+			name:     "Unauthorized Case",
+			req:      m.buildReq(authorizationTyp, "", time.Minute),
+			wantCode: http.StatusUnauthorized,
+		},
+		{
+			name:     "Unsupported Case",
+			req:      m.buildReq("unsupported", "jrmarcco", time.Minute),
+			wantCode: http.StatusUnauthorized,
+		},
+		{
+			name:     "Invalid Format Case",
+			req:      m.buildReq("", "jrmarcco", time.Minute),
+			wantCode: http.StatusUnauthorized,
+		},
+		{
+			name:     "Expired Case",
+			req:      m.buildReq(authorizationTyp, "jrmarcco", -time.Minute),
+			wantCode: http.StatusUnauthorized,
+		},
 	}
+
+	// register auth middleware
+	m.server.Router.GET(
+		authPath,
+		NewAuthMiddlewareBuilder(m.server.TokenMaker).Build(),
+		func(ctx *gin.Context) {
+			ctx.JSON(http.StatusOK, gin.H{})
+		},
+	)
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-
-			// register auth middleware
-			m.server.Router.GET(
-				authPath,
-				NewAuthMiddlewareBuilder(m.server.TokenMaker).Build(),
-				func(ctx *gin.Context) {
-					ctx.JSON(http.StatusOK, gin.H{})
-				},
-			)
 
 			recorder := httptest.NewRecorder()
 			m.server.Router.ServeHTTP(recorder, tc.req)
