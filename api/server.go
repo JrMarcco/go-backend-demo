@@ -9,50 +9,50 @@ import (
 	"github.com/jrmarcco/go-backend-demo/util"
 )
 
-type Server struct {
-	Router     *gin.Engine
-	TokenMaker token.Maker
+type S struct {
+	router *gin.Engine
 
-	config util.ServerCfg
-	store  db.Store
+	config     util.ServerCfg
+	store      db.Store
+	tokenMaker token.Maker
 }
 
-func NewServer(config util.ServerCfg, s db.Store) *Server {
+func NewServer(config util.ServerCfg, s db.Store) *S {
 	r := gin.Default()
 
-	server := &Server{
-		Router:     r,
+	server := &S{
+		router:     r,
 		config:     config,
 		store:      s,
-		TokenMaker: token.NewPasetoPubMarkerV4(),
+		tokenMaker: token.NewPasetoPubMarkerV4(),
 	}
 
 	return server
 }
 
-func (s *Server) Start(addr string) error {
+func (s *S) Start(addr string) error {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		if err := v.RegisterValidation("currency", validCurrency); err != nil {
 			return err
 		}
 	}
 
-	return s.Router.Run(addr)
+	return s.router.Run(addr)
 }
 
-func (s *Server) Use(middleware ...gin.HandlerFunc) {
-	_ = s.Router.Use(middleware...)
+func (s *S) Use(middleware ...gin.HandlerFunc) {
+	_ = s.router.Use(middleware...)
 }
 
-func (s *Server) GenerateToken(username string) (string, error) {
-	return s.TokenMaker.Generate(username, s.config.TokenDuration)
+func (s *S) GenerateToken(username string) (string, error) {
+	return s.tokenMaker.Generate(username, s.config.TokenDuration)
 }
 
-func (s *Server) VerifyToken(token string) (*token.Payload, error) {
-	return s.TokenMaker.Verify(token)
+func (s *S) VerifyToken(token string) (*token.Payload, error) {
+	return s.tokenMaker.Verify(token)
 }
 
-func ErrorResp(err error) gin.H {
+func errorResp(err error) gin.H {
 	return gin.H{
 		"error": err.Error(),
 	}

@@ -212,16 +212,16 @@ func (a *apiTestSuite) TestCreateUserApi() {
 			tc.buildStub(store)
 
 			// start server and send request
-			server := a.newTestServer(store)
+			a.setupTestServer(store)
 			recorder := httptest.NewRecorder()
 
 			data, err := json.Marshal(tc.arg)
 			require.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPost, "/api/v1/user/add", bytes.NewReader(data))
+			req, err := http.NewRequest(http.MethodPost, "/user/add", bytes.NewReader(data))
 			require.NoError(t, err)
 
-			server.Router.ServeHTTP(recorder, req)
+			a.s.router.ServeHTTP(recorder, req)
 			tc.checkResp(t, recorder)
 		})
 	}

@@ -1,10 +1,14 @@
 package api
 
-func (s *Server) RegisterRouter() {
+func (s *S) RegisterRouter() {
 	// use for health check
-	s.Router.GET("/healthz", s.healthz)
+	s.router.GET("/healthz", s.healthz)
 
-	apiG := s.Router.Group("/api/v1")
+	s.router.POST("/user/add", s.createUser)
+	s.router.POST("/login", s.login)
+
+	apiG := s.router.Group("/api/v1")
+	apiG.Use(NewAuthMiddlewareBuilder(s.tokenMaker).Build())
 
 	accountG := apiG.Group("/account")
 	{
@@ -20,8 +24,6 @@ func (s *Server) RegisterRouter() {
 
 	userG := apiG.Group("/user")
 	{
-		userG.POST("login", s.login)
-		userG.POST("/add", s.createUser)
 		userG.GET("/get/:id", s.getUser)
 	}
 }

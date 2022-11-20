@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"github.com/jrmarcco/go-backend-demo/api"
 	db "github.com/jrmarcco/go-backend-demo/db/sqlc"
-	"github.com/jrmarcco/go-backend-demo/middlewares"
 	"github.com/jrmarcco/go-backend-demo/util"
 	"log"
 
@@ -25,11 +24,6 @@ func main() {
 
 	store := db.NewStore(conn)
 	server := api.NewServer(config.Server, store)
-
-	server.Use(
-		middlewares.NewAuthMiddlewareBuilder(server.TokenMaker).Build(),
-	)
-
 	server.RegisterRouter()
 
 	if err = server.Start(config.Server.Addr); err != nil {

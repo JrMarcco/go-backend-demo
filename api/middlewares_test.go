@@ -1,14 +1,31 @@
-package middlewares
+package api
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jrmarcco/go-backend-demo/util"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 )
+
+type middlewareTestSuite struct {
+	suite.Suite
+	s *S
+}
+
+func TestMiddleware(t *testing.T) {
+	suite.Run(t, &middlewareTestSuite{
+		s: NewServer(util.ServerCfg{}, nil),
+	})
+}
+
+func (m *middlewareTestSuite) SetupSuite() {
+	gin.SetMode(gin.TestMode)
+}
 
 const authPath = "/auth"
 
@@ -19,7 +36,7 @@ func (m *middlewareTestSuite) buildReq(authorizationTyp, username string, durati
 	require.NoError(t, err)
 
 	if username != "" {
-		tk, err := m.server.TokenMaker.Generate(username, duration)
+		tk, err := m.s.tokenMaker.Generate(username, duration)
 		require.NoError(t, err)
 
 		authorization := fmt.Sprintf("%s %s", authorizationTyp, tk)
@@ -65,9 +82,9 @@ func (m *middlewareTestSuite) TestAuthMiddleware() {
 	}
 
 	// register auth middleware
-	m.server.Router.GET(
+	m.s.router.GET(
 		authPath,
-		NewAuthMiddlewareBuilder(m.server.TokenMaker).Build(),
+		NewAuthMiddlewareBuilder(m.s.tokenMaker).Build(),
 		func(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, gin.H{})
 		},
@@ -77,7 +94,7 @@ func (m *middlewareTestSuite) TestAuthMiddleware() {
 		t.Run(tc.name, func(t *testing.T) {
 
 			recorder := httptest.NewRecorder()
-			m.server.Router.ServeHTTP(recorder, tc.req)
+			m.s.router.ServeHTTP(recorder, tc.req)
 
 			require.Equal(t, tc.wantCode, recorder.Code)
 		})

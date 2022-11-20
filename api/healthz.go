@@ -5,6 +5,6 @@ import (
 	"net/http"
 )
 
-func (s *Server) healthz(ctx *gin.Context) {
+func (s *S) healthz(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }

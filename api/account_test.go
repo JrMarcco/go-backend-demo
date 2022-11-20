@@ -13,7 +13,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
+
+func (a *apiTestSuite) buildGetAccountReq(userID int64) *http.Request {
+	t := a.T()
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/account/get/%d", userID), nil)
+	require.NoError(t, err)
+
+	return req
+}
 
 func (a *apiTestSuite) TestGetAccountApi() {
 	t := a.T()
@@ -22,13 +31,13 @@ func (a *apiTestSuite) TestGetAccountApi() {
 
 	tcs := []struct {
 		name      string
-		arg       int64
+		arg       *http.Request
 		buildStub func(store *mockdb.MockStore)
 		checkResp func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "Normal Case",
-			arg:  account.ID.Int64,
+			arg:  a.buildGetAccountReq(account.ID.Int64),
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -49,7 +58,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 		},
 		{
 			name: "Invalid ID Case",
-			arg:  0,
+			arg:  a.buildGetAccountReq(0),
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
@@ -59,7 +68,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 		},
 		{
 			name: "NotFound Case",
-			arg:  account.ID.Int64,
+			arg:  a.buildGetAccountReq(account.ID.Int64),
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -72,7 +81,7 @@ func (a *apiTestSuite) TestGetAccountApi() {
 		},
 		{
 			name: "InternalError Case",
-			arg:  account.ID.Int64,
+			arg:  a.buildGetAccountReq(account.ID.Int64),
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -95,13 +104,12 @@ func (a *apiTestSuite) TestGetAccountApi() {
 			tc.buildStub(store)
 
 			// start server and send request
-			server := a.newTestServer(store)
+			a.setupTestServer(store)
 			recorder := httptest.NewRecorder()
 
-			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/account/get/%d", tc.arg), nil)
-			require.NoError(t, err)
+			a.setAuthorization(tc.arg, account.AccountOwner, time.Minute)
 
-			server.Router.ServeHTTP(recorder, req)
+			a.s.router.ServeHTTP(recorder, tc.arg)
 			tc.checkResp(t, recorder)
 		})
 	}
