@@ -7,7 +7,6 @@ services:
     environment:
       MYSQL_DATABASE: simple_bank
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
-
   api:
     container_name: simple_bank
     build:
