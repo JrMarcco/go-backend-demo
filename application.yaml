@@ -4,8 +4,4 @@ server:
 
 db:
   driver: "mysql"
-  host: "127.0.0.1"
-  port: "3306"
-  username: "root"
-  password: ""
-  source: "%s:%s@tcp(%s:%s)/simple_bank?parseTime=true"
+  source: "root:@tcp(127.0.0.1:3306)/simple_bank?parseTime=true"

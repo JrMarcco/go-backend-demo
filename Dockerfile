@@ -6,7 +6,13 @@ RUN GOOS=linux go build -o main main.go
 
 FROM alpine:latest
 WORKDIR /app
+
 COPY --from=build /app/main .
 COPY application.yaml .
+COPY start.sh .
+COPY wait-for.sh .
+COPY db/migration ./migration
+
 EXPOSE 8080
-ENTRYPOINT ["/app/main"]
+CMD [ "/app/main" ]
+ENTRYPOINT [ "/app/start.sh" ]
