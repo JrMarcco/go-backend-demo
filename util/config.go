@@ -45,13 +45,6 @@ func LoadConfig(path string) (config Config, err error) {
 		return
 	}
 
-	//for _, key := range viper.AllKeys() {
-	//	val := viper.Get(key)
-	//	if val != "" {
-	//		viper.Set(key, val)
-	//	}
-	//}
-
 	config.Db.Source = fmt.Sprintf(
 		config.Db.Source,
 		config.Db.Username,
