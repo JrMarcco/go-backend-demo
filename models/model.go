@@ -1,8 +1,10 @@
 package models
 
 import (
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jrmarcco/go-backend-demo/util"
-	"gorm.io/driver/mysql"
+	gormMysql "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"time"
@@ -17,21 +19,20 @@ type Model struct {
 var db *gorm.DB
 
 func Setup() {
-	config, err := util.LoadConfig("..")
+	cfg, err := util.LoadConfig("..")
 	if err != nil {
 		log.Fatal("can not load config:", err)
 	}
 
-	db, err = gorm.Open(mysql.Open(config.Db.Source), &gorm.Config{})
+	sqlDB, err := sql.Open(cfg.Db.Driver, cfg.Db.Source)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	sqlDB, err := db.DB()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	sqlDB.SetMaxIdleConns(5)
 	sqlDB.SetMaxOpenConns(20)
+
+	db, err = gorm.Open(gormMysql.New(gormMysql.Config{Conn: sqlDB}), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
