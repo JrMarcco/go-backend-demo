@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func (m *mysqlTestSuite) TestTransferTx() {
+func (m *sqlcTestSuite) TestTransferTx() {
 	t := m.T()
 
 	store := NewStore(m.conn)
@@ -85,7 +85,7 @@ func (m *mysqlTestSuite) TestTransferTx() {
 	require.Equal(t, int64(n)*amount, updatedAccount2.Balance-account2.Balance)
 }
 
-func (m *mysqlTestSuite) TestTransferTxDeadLock() {
+func (m *sqlcTestSuite) TestTransferTxDeadLock() {
 	t := m.T()
 
 	store := NewStore(m.conn)

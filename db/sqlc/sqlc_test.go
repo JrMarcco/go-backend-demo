@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-type mysqlTestSuite struct {
+type sqlcTestSuite struct {
 	suite.Suite
 
 	dbDriver string
@@ -25,13 +25,13 @@ func TestMySQL(t *testing.T) {
 		log.Fatal("can not load config:", err)
 	}
 
-	suite.Run(t, &mysqlTestSuite{
+	suite.Run(t, &sqlcTestSuite{
 		dbDriver: config.Db.Driver,
 		dbSource: config.Db.Source,
 	})
 }
 
-func (m *mysqlTestSuite) SetupSuite() {
+func (m *sqlcTestSuite) SetupSuite() {
 	conn, err := sql.Open(m.dbDriver, m.dbSource)
 	if err != nil {
 		log.Fatalln(err)

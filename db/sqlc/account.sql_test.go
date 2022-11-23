@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
+func (m *sqlcTestSuite) createAccount(t *testing.T) Account {
 	user := m.createUser(t)
 
 	createAccountArgs := CreateAccountParams{
@@ -31,11 +31,11 @@ func (m *mysqlTestSuite) createAccount(t *testing.T) Account {
 	return account
 }
 
-func (m *mysqlTestSuite) TestCreateAccount() {
+func (m *sqlcTestSuite) TestCreateAccount() {
 	_ = m.createAccount(m.T())
 }
 
-func (m *mysqlTestSuite) TestGetAccount() {
+func (m *sqlcTestSuite) TestGetAccount() {
 	t := m.T()
 
 	account1 := m.createAccount(t)
@@ -47,7 +47,7 @@ func (m *mysqlTestSuite) TestGetAccount() {
 	require.Equal(t, account1.Currency, account2.Currency)
 }
 
-func (m *mysqlTestSuite) TestDeleteAccount() {
+func (m *sqlcTestSuite) TestDeleteAccount() {
 	t := m.T()
 
 	account := m.createAccount(t)

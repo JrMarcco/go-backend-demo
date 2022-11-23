@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func (m *mysqlTestSuite) createUser(t *testing.T) User {
+func (m *sqlcTestSuite) createUser(t *testing.T) User {
 
 	hashedPasswd, err := util.HashPasswd(util.RandomString(8))
 	require.NoError(t, err)
@@ -38,6 +38,6 @@ func (m *mysqlTestSuite) createUser(t *testing.T) User {
 	return user
 }
 
-func (m *mysqlTestSuite) TestCreateUser() {
+func (m *sqlcTestSuite) TestCreateUser() {
 	_ = m.createUser(m.T())
 }
