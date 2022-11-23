@@ -2,9 +2,8 @@ package models
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jrmarcco/go-backend-demo/util"
-	gormMysql "gorm.io/driver/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"time"
@@ -28,10 +27,11 @@ func Setup() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	sqlDB.SetMaxIdleConns(5)
 	sqlDB.SetMaxOpenConns(20)
 
-	db, err = gorm.Open(gormMysql.New(gormMysql.Config{Conn: sqlDB}), &gorm.Config{})
+	db, err = gorm.Open(mysql.New(mysql.Config{Conn: sqlDB}), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
