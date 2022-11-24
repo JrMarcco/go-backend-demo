@@ -52,3 +52,37 @@ func (e *entTestSuite) TestQueryAccount() {
 	require.Equal(t, account1.Balance, account2.Balance)
 	require.Equal(t, account1.Currency, account2.Currency)
 }
+
+func (e *entTestSuite) TestDeleteAccount() {
+	t := e.T()
+
+	account1 := e.createAccount()
+
+	err := e.client.Account.DeleteOneID(account1.ID).Exec(context.Background())
+	require.NoError(t, err)
+
+	account2, err := e.client.Account.Query().
+		Where(account.ID(account1.ID)).
+		First(context.Background())
+
+	require.True(t, ent.IsNotFound(err))
+	require.Empty(t, account2)
+}
+
+func (e *entTestSuite) TestUpdateAccount() {
+	t := e.T()
+
+	account1 := e.createAccount()
+
+	err := e.client.Account.UpdateOne(account1).
+		SetBalance(account1.Balance + 100).
+		Exec(context.Background())
+	require.NoError(t, err)
+
+	account2, err := e.client.Account.Query().
+		Where(account.ID(account1.ID)).
+		First(context.Background())
+	require.NoError(t, err)
+
+	require.Equal(t, account1.Balance+100, account2.Balance)
+}
