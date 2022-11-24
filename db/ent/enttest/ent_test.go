@@ -39,3 +39,10 @@ func (e *entTestSuite) SetupSuite() {
 	}
 	e.client = client
 }
+
+func (e *entTestSuite) TearDownSuite() {
+	defer func() {
+		_ = e.client.Close()
+		e.T().Log("ent client closed")
+	}()
+}
