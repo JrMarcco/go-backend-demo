@@ -12,7 +12,7 @@ import (
 type Querier interface {
 	AddBalance(ctx context.Context, arg AddBalanceParams) error
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (sql.Result, error)
-	CreateEntry(ctx context.Context, arg CreateEntryParams) (sql.Result, error)
+	CreateEntries(ctx context.Context, arg CreateEntriesParams) (sql.Result, error)
 	CreateTransfer(ctx context.Context, arg CreateTransferParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	DeleteAccount(ctx context.Context, id sql.NullInt64) error

@@ -1,4 +1,4 @@
-package models
+package gorm
 
 import (
 	"github.com/jrmarcco/go-backend-demo/util"
@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (m *modelTestSuite) createAccount() *Account {
+func (m *gormTestSuite) createAccount() *Account {
 	t := m.T()
 
 	addAccountParams := AddAccountParam{
@@ -29,11 +29,11 @@ func (m *modelTestSuite) createAccount() *Account {
 	return account
 }
 
-func (m *modelTestSuite) TestAddAccount() {
+func (m *gormTestSuite) TestAddAccount() {
 	_ = m.createAccount()
 }
 
-func (m *modelTestSuite) TestGetAccount() {
+func (m *gormTestSuite) TestGetAccount() {
 	t := m.T()
 	account1 := m.createAccount()
 
@@ -45,7 +45,7 @@ func (m *modelTestSuite) TestGetAccount() {
 	require.Equal(t, account1.Currency, account2.Currency)
 }
 
-func (m *modelTestSuite) TestDelAccount() {
+func (m *gormTestSuite) TestDelAccount() {
 	t := m.T()
 
 	account1 := m.createAccount()

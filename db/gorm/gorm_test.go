@@ -1,18 +1,18 @@
-package models
+package gorm
 
 import (
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-type modelTestSuite struct {
+type gormTestSuite struct {
 	suite.Suite
 }
 
 func TestMysql(t *testing.T) {
-	suite.Run(t, &modelTestSuite{})
+	suite.Run(t, &gormTestSuite{})
 }
 
-func (m *modelTestSuite) SetupSuite() {
+func (m *gormTestSuite) SetupSuite() {
 	Setup()
 }

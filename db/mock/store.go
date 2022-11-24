@@ -65,19 +65,19 @@ func (mr *MockStoreMockRecorder) CreateAccount(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAccount", reflect.TypeOf((*MockStore)(nil).CreateAccount), arg0, arg1)
 }
 
-// CreateEntry mocks base method.
-func (m *MockStore) CreateEntry(arg0 context.Context, arg1 db.CreateEntryParams) (sql.Result, error) {
+// CreateEntries mocks base method.
+func (m *MockStore) CreateEntries(arg0 context.Context, arg1 db.CreateEntriesParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateEntry", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateEntries", arg0, arg1)
 	ret0, _ := ret[0].(sql.Result)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateEntry indicates an expected call of CreateEntry.
-func (mr *MockStoreMockRecorder) CreateEntry(arg0, arg1 interface{}) *gomock.Call {
+// CreateEntries indicates an expected call of CreateEntries.
+func (mr *MockStoreMockRecorder) CreateEntries(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEntry", reflect.TypeOf((*MockStore)(nil).CreateEntry), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEntries", reflect.TypeOf((*MockStore)(nil).CreateEntries), arg0, arg1)
 }
 
 // CreateTransfer mocks base method.

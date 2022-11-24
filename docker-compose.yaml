@@ -20,4 +20,4 @@ services:
     depends_on:
       - mysql
     command: [ "/app/main" ]
-    entrypoint: [ "/app/wait-for.sh", "--", "/app/start.sh" ]
+    entrypoint: [ "/app/wait-for.sh", "mysql:3306", "--", "/app/start.sh" ]

@@ -44,11 +44,11 @@ type Transfer struct {
 // users
 type User struct {
 	// id
-	ID                sql.NullInt64 `json:"id"`
-	Username          string        `json:"username"`
-	Email             string        `json:"email"`
-	HashedPasswd      string        `json:"hashedPasswd"`
-	PasswordChangedAt time.Time     `json:"passwordChangedAt"`
-	CreatedAt         time.Time     `json:"createdAt"`
-	UpdatedAt         time.Time     `json:"updatedAt"`
+	ID              sql.NullInt64 `json:"id"`
+	Username        string        `json:"username"`
+	Email           string        `json:"email"`
+	HashedPasswd    string        `json:"hashedPasswd"`
+	PasswdChangedAt time.Time     `json:"passwdChangedAt"`
+	CreatedAt       time.Time     `json:"createdAt"`
+	UpdatedAt       time.Time     `json:"updatedAt"`
 }

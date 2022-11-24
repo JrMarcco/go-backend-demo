@@ -74,7 +74,7 @@ func (s *SQLStore) TransferTx(ctx context.Context, args TransferTxParams) (Trans
 		}
 
 		// create from entry
-		txRes.FromEntry, err = doWithEntry(ctx, CreateEntryParams{
+		txRes.FromEntry, err = doWithEntry(ctx, CreateEntriesParams{
 			AccountID: args.FromID,
 			Amount:    -args.Amount,
 		}, queries)
@@ -83,7 +83,7 @@ func (s *SQLStore) TransferTx(ctx context.Context, args TransferTxParams) (Trans
 		}
 
 		// create to entry
-		txRes.ToEntry, err = doWithEntry(ctx, CreateEntryParams{
+		txRes.ToEntry, err = doWithEntry(ctx, CreateEntriesParams{
 			AccountID: args.ToID,
 			Amount:    args.Amount,
 		}, queries)
@@ -134,8 +134,8 @@ func doWitTransfer(ctx context.Context, args CreateTransferParams, q *Queries) (
 	}, nil
 }
 
-func doWithEntry(ctx context.Context, args CreateEntryParams, q *Queries) (Entry, error) {
-	res, err := q.CreateEntry(ctx, CreateEntryParams{
+func doWithEntry(ctx context.Context, args CreateEntriesParams, q *Queries) (Entry, error) {
+	res, err := q.CreateEntries(ctx, CreateEntriesParams{
 		AccountID: args.AccountID,
 		Amount:    args.Amount,
 	})

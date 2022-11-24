@@ -25,7 +25,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const findUser = `-- name: FindUser :one
-select id, username, email, hashed_passwd, password_changed_at, created_at, updated_at from users
+select id, username, email, hashed_passwd, passwd_changed_at, created_at, updated_at from users
 where username = ? limit 1
 `
 
@@ -37,7 +37,7 @@ func (q *Queries) FindUser(ctx context.Context, username string) (User, error) {
 		&i.Username,
 		&i.Email,
 		&i.HashedPasswd,
-		&i.PasswordChangedAt,
+		&i.PasswdChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -45,7 +45,7 @@ func (q *Queries) FindUser(ctx context.Context, username string) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-select id, username, email, hashed_passwd, password_changed_at, created_at, updated_at from users
+select id, username, email, hashed_passwd, passwd_changed_at, created_at, updated_at from users
 where id = ? limit 1
 `
 
@@ -57,7 +57,7 @@ func (q *Queries) GetUser(ctx context.Context, id sql.NullInt64) (User, error) {
 		&i.Username,
 		&i.Email,
 		&i.HashedPasswd,
-		&i.PasswordChangedAt,
+		&i.PasswdChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

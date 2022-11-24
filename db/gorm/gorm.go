@@ -1,4 +1,4 @@
-package models
+package gorm
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ type Model struct {
 var db *gorm.DB
 
 func Setup() {
-	cfg, err := util.LoadConfig("..")
+	cfg, err := util.LoadConfig("../..")
 	if err != nil {
 		log.Fatal("can not load config:", err)
 	}

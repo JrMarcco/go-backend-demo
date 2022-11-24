@@ -1,4 +1,4 @@
-package models
+package gorm
 
 type Account struct {
 	Model
