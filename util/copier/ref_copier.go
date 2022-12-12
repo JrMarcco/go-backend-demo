@@ -69,7 +69,7 @@ func createFieldNode(srcTyp, dstTyp reflect.Type, rootFn *fieldNode) error {
 					return fmt.Errorf("invalid field")
 				}
 				if sfd.Type.Elem().Kind() != dfd.Type.Elem().Kind() {
-					// 同名指针指向的类型不一直，忽略字段
+					// 同名指针指向的类型不一致，忽略字段
 					continue
 				}
 			}
